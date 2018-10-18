@@ -448,7 +448,7 @@ p41 + geom_point() + annotate(geom = "rect", xmin = 125, xmax = 155, ymin = 30, 
 #- If the change you want to make will affect the substantive interpretation of any particular geom, then most likely you will either be mapping an aesthetic to a variable using that geom's aes() function, or you will be specifying a change via some scale_ function.
 #- If the change you want to make does not affect the interpretation of a given geom_, then most likely you will either be setting a variable inside the geom_ function, or making a cosmetic change via the theme() function.
 
-#Hello World"
+#Hello World"- How are you
 ```{r}
 
 ```
