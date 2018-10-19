@@ -1,6 +1,7 @@
 ---
 title: "Practice"
 output:
+  word_document: default
   pdf_document: default
   html_document: default
 ---
@@ -61,7 +62,7 @@ p1+ geom_point() +geom_smooth(method="loess")+ scale_x_log10(labels=scales::doll
 
 ```{r}
 p2 <- ggplot(data=gapminder, mapping=aes(x=gdpPercap, y=lifeExp))
-p2+ geom_point(color="purple") + geom_smooth(method="loess", color="red") + scale_x_log10(labels=scales::dollar) 
+p2+ geom_point(color="purple") + geom_smooth(method="loess", color="red", fill="green") + scale_x_log10(labels=scales::dollar) 
 ```
 
 
@@ -102,9 +103,6 @@ p7 <- ggplot(data= gapminder, mapping = aes(x=year, y=gdpPercap))
 install.packages("devtools")
 devtools::install_github("kjhealy/socviz")
 library(socviz) #loading the socviz library
-```
-```{r}
-
 ```
 
 
@@ -501,19 +499,104 @@ p47+ geom_point() +annotate(geom = "rect", xmin = 0.55, xmax = 0.6, ymin= 24, ym
 
 ```{r}
 str(gapminder)
+table(gapminder$continent)
+ls(gapminder)
+```
+
+# the summarise function in dplyr helps to summarze the data based on the existing function like mean(), n(), sd(), etc. Whereas with the mutate function we can create new variables from the existing variables.
+# n() counts the number of rows in a group.
+# usually we first group before we do the summarising.
+```{r}
+life_by_year1 <- gapminder%>% 
+    filter(year==2007) %>% 
+     group_by(continent) %>% 
+summarise(avg_lyf=mean(lifeExp,na.rm = TRUE))
+
+life_by_year1
 ```
 
 ```{r}
+p48 <- ggplot(data = life_by_year1, mapping = aes(x=continent, y=avg_lyf))
+p48 + geom_bar(stat = "identity") +coord_flip()+ labs(x=NULL, y="Life expectancy in years, 2007")
+```
 
+```{r}
+rel_by_region <- gss_sm %>% 
+  group_by(bigregion, religion) %>% 
+  summarise(N=n()) %>% 
+  mutate(freq=N/sum(N), pct=round((freq*100),0))
+
+rel_by_region
+```
+
+```{r}
+p49 <- ggplot(data = life_by_year1, mapping = aes(x=continent, y=avg_lyf))
+p49 + geom_point() +coord_flip()+ labs(x=NULL, y="Life expectancy in years, 2007")
+```
+
+```{r}
+gss_sm %>% group_by(race, degree) %>% summarise(N=n()) %>% mutate(pct=round((N/sum(N))*100,0))
+gss_sm
+```
+```{r}
+p50 <- ggplot(data=gss_sm, mapping=aes(x=reorder(degree,childs, na.rm=TRUE), y=childs))
+p50 + geom_boxplot()+coord_flip() 
+```
+
+```{r}
+gss_sm %>% group_by(degree) %>% summarise(Chid_mean=mean(childs, na.rm=TRUE))
+```
+
+```{r}
+gapminder
+table(gapminder$year)
+```
+
+```{r}
+p51 <- ggplot(data=gapminder, mapping = aes(x=year, y=lifeExp))
+p51 +geom_boxplot(aes(group=year)) +facet_wrap(~continent)
 ```
 
 
+```{r}
+p52 <- ggplot(data=gapminder, mapping = aes(x=year, y=lifeExp))
+p52 +geom_violin(aes(group=year)) +facet_wrap(~continent)
+```
 
+```{r}
+gapminder_new <- gapminder %>% group_by(continent) %>% summarise(life_mean=mean(lifeExp, na.rm=TRUE), life_sd=sd(lifeExp, na.rm=TRUE))
+gapminder_new
+
+p53 <- ggplot(data = gapminder_new, mapping = aes(x=continent, y=life_mean))
+p53 +geom_errorbar(mapping = aes(ymin=life_mean-life_sd, ymax=life_mean+life_sd))+ coord_flip()
+
+p54 <- ggplot(data = gapminder_new, mapping = aes(x=reorder(continent, life_mean), y= life_mean))
+p54 + geom_crossbar(mapping = aes(ymin=life_mean-life_sd, ymax=life_mean+life_sd))+coord_flip()
+```
+
+#Chapter 6: 
+#- method=lm is the OLS estimator command in R.
+```{r}
+p55 <- ggplot(data = gapminder, mapping = aes(x= log(gdpPercap), y=lifeExp))
+p55 + geom_point(alpha=0.2) + geom_smooth(color="tomato", fill="tomato", method = MASS::rlm) + geom_smooth(color="steelblue", fill="steelblue", method="lm")
+```
+
+```{r}
+p56 <- ggplot(data = gapminder, mapping = aes(x=log(gdpPercap), y=lifeExp))
+p56 + geom_point(alpha=0.2) + geom_smooth(color="tomato", method = "lm", size=1.2, formula= y~ splines::bs(x,3), se=FALSE) 
+```
+
+```{r}
+install.packages("quantreg")
+library(quantreg)
+p57 <- ggplot(data = gapminder, mapping = aes(x=log(gdpPercap), y=lifeExp))
+p57 +geom_point(alpha=0.1) + geom_quantile(color="tomato", size=1.2, method= "rqss", lambda=1, quantiles= c(0.2, 0.5, 0.85))
+```
 
 
 #Real Data Analysis
 ```{r}
-class(Atr_Africa)
+class(Atr_Africa) 
 ```
 ```{r}
 str(Atr_Africa)
