@@ -393,7 +393,7 @@ p36 <- ggplot(data=elections_historic, mapping = aes(x=popular_pct, y=ec_pct))
 p36+ geom_point()+ geom_label_repel(aes(label=winner_label)) + geom_hline(yintercept = 0.5, size=1.4, color="red") + geom_vline(xintercept = 0.5, size= 1.4, color="red")+scale_x_continuous(labels = scales::percent) +scale_y_continuous(labels = scales::percent) +labs (x = "Winner's share of Popular Vote", y ="Winner's share of Electoral College Votes",title= "Presidential Elections: Popular & Electoral College Margins" ,subtitle= "1824-2016", caption= "Data for 2016 are provisional.")
 ```
 
-#code on how to colour dots for different ranges: https://stackoverflow.com/questions/11467965/r-ggplot2-highlighting-selected-points-and-strange-behavior
+#code on how to colour dots for different ranges with different colors: https://stackoverflow.com/questions/11467965/r-ggplot2-highlighting-selected-points-and-strange-behavior
 ```{r}
 p37 <- ggplot(data = by_country1, mapping = aes(x=gdp_mean, y=health_mean))
 p37+ geom_point(aes(color= gdp_mean>25000))+scale_color_manual(values = c("blue", "red"))   + geom_text_repel(data=subset(by_country1, gdp_mean>25000),aes(label=country), color="purple") +guides(color=FALSE)
@@ -436,7 +436,7 @@ p41 + geom_point() + annotate(geom = "rect", xmin = 125, xmax = 155, ymin = 30, 
 ```
 
 #-Note on the usage of guides(), themes() and scale_:
-#- We use the guides() fuction to remove the ledengs of a color mapping and a label mapping.
+#- We use the guides() fuction to remove the legends of a color mapping and a label mapping.
 #- We use the theme() function to move the position of a legend from the side to the top of a figure. 
 #- geom_pointrage() requires ymin and ymax mapping in order to know where to draw the lineranges.
 #- geom_histogram() only requires you to x for mapping.
@@ -447,12 +447,65 @@ p41 + geom_point() + annotate(geom = "rect", xmin = 125, xmax = 155, ymin = 30, 
 #- Graphs also have features like their background color, the typeface used for label, or the placement of the legend on the graph. To adjust these,use the theme() function.
 #- If the change you want to make will affect the substantive interpretation of any particular geom, then most likely you will either be mapping an aesthetic to a variable using that geom's aes() function, or you will be specifying a change via some scale_ function.
 #- If the change you want to make does not affect the interpretation of a given geom_, then most likely you will either be setting a variable inside the geom_ function, or making a cosmetic change via the theme() function.
+#- Sclae_ function has the syntax as scale_<MAPPING>_<KIND>(): First comes the scale_name, then the mapping it applies to, and finally the kind of value the scale will display.
 
-#Hello World"- How are you
+
+```{r}
+p42 <- ggplot(data=organdata, mapping = aes(x=roads, y= donors, color=world))
+p42 + geom_point() + scale_x_log10() + scale_y_continuous(breaks = c(5, 15, 25), labels = c("Five", "Fifteen", "Twenty Five")) 
+```
+
+
+```{r}
+p43 <- ggplot(data= organdata, mapping = aes(x=roads, y=donors, color=world))
+p43 + geom_point() + scale_color_discrete(labels=c("Corporatist", "Liberal", "Social Democratic", "Unclassified")) +theme(legend.position = "top")
+```
+
+```{r}
+str(elections_historic)
+```
+
+```{r, fig.height=10, fig.width=12}
+p44 <- ggplot(data = elections_historic, mapping = aes(x= popular_pct, y= ec_pct, label= winner_label))
+p44+ geom_point()+ geom_text_repel() +scale_x_continuous(labels=scales::percent)+scale_y_continuous(labels=scales::percent) +geom_hline(yintercept=0.5, size=1.5, color="red") +geom_vline(xintercept=0.5, size=1.5, color="red")
+```
+
+
+#This plot shows the text labels for the elections which held starting 1992. Here we subsetted the labels in the geom_text repel.Alo, in the geom_text_repel when we are subsetting we we have to write "data" and "mapping" in the function.
+```{r,fig.height=10, fig.width=12}
+p45 <- ggplot(data = elections_historic, mapping = aes(x= popular_pct, y= ec_pct))
+p45+ geom_point()+ geom_text_repel(data=subset(elections_historic, year>=1992), mapping= aes(label=winner_label)) +scale_x_continuous(labels=scales::percent)+scale_y_continuous(labels=scales::percent) +geom_hline(yintercept=0.5, size=1.5, color="red") +geom_vline(xintercept=0.5, size=1.5, color="red")
+```
+
+#Never put the colors:yellow, green, red, etc. inside the aesthetics. In the aesthetics mapping always equate a variable to the color.
+```{r, fig.height=10, fig.width=10}
+p46 <- ggplot(data = elections_historic, mapping = aes(x=popular_pct, y= ec_pct))
+p46 + geom_point(aes(color=win_party))+geom_text_repel(data = subset(elections_historic, win_party=="Dem."), mapping = aes(label=winner_label), color="yellow") + geom_hline(yintercept = 0.5, size= 1.5, color="green") + geom_vline(xintercept = 0.5, size= 1.5, color= "green") +scale_x_continuous(labels=scales::percent) +scale_y_continuous(labels=scales::percent)+theme(legend.position = "top")+ scale_color_discrete(labels=c("Democrat and Republican", "Democrat", "Repblican", "Whig")) 
+```
+
+```{r}
+elections_historic$win_party
+table(elections_historic$win_party)
+str(elections_historic)
+```
+#issue with the plot- not able to figure out which variable to map
+```{r, fig.width=12, fig.height=8}
+p47 <- ggplot(data = elections_historic, mapping = aes(x=popular_pct, y=reorder(winner, popular_pct)))
+p47+ geom_point() +annotate(geom = "rect", xmin = 0.55, xmax = 0.6, ymin= 24, ymax=30, fill="red", alpha=0.2)
+```
+
+#-Note for dplyr library
+#- group_by() groups your data from left to right, with the rightmost or innnermost group being the level calculations will be done at.
+#- mutate() adds a column at the current level of grouping. 
+#- summarize() aggregates to the next level.
+
+```{r}
+str(gapminder)
+```
+
 ```{r}
 
 ```
-
 
 
 
