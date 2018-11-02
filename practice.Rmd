@@ -592,6 +592,39 @@ library(quantreg)
 p57 <- ggplot(data = gapminder, mapping = aes(x=log(gdpPercap), y=lifeExp))
 p57 +geom_point(alpha=0.1) + geom_quantile(color="tomato", size=1.2, method= "rqss", lambda=1, quantiles= c(0.2, 0.5, 0.85))
 ```
+```{r}
+model_colors <- RColorBrewer::brewer.pal(3, "Set1")
+model_colors
+
+```
+```{r}
+p58 <- ggplot(data=gapminder, mapping = aes(x=log(gdpPercap), y=lifeExp))
+p58 + geom_point(alpha=0.2, color="yellow") + geom_smooth(method="lm", aes(color= "OLS", fill="OLS")) +geom_smooth(method="lm", formula=y~splines::bs(x,df=3), aes(color="Cubic Spline", fill="Cubic Spline")) +geom_smooth(method = "loess", aes(color="LOESS",fill="LOESS")) + scale_color_manual(name="Models", values= model_colors)+ scale_fill_manual(name="Models", values=model_colors) +theme(legend.position = "top")
+```
+
+```{r}
+out <- lm(formula = lifeExp ~ gdpPercap + pop + continent, data = gapminder)
+summary(out)
+```
+
+```{r}
+summary(gapminder)
+```
+
+```{r}
+str(out)
+out$df.residual
+out$model
+out$coefficients
+out$residuals
+out$fitted.values 
+```
+
+#Chapter 7: Draw maps
+
+
+
+
 
 
 #Real Data Analysis
