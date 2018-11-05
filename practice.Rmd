@@ -622,9 +622,46 @@ out$fitted.values
 
 #Chapter 7: Draw maps
 
+```{r}
+ls(election)
+election$st
+```
 
+```{r}
+election %>% select(state, total_vote, r_points, pct_trump, party, census) %>% sample_n(5)
+```
 
+```{r, fig.height=12, fig.width=8}
 
+party_colors <- c("#2E74C0", "#CB454A") #Hex color codes for domocratic blue and republican red
+
+p59 <- ggplot(data = subset(election, st %nin% "DC"), mapping= aes(x=r_points, y= reorder(state, r_points), color= party))
+
+p59 + geom_point(size=2) + geom_vline(xintercept = 0, color="gray30") + scale_color_manual(values =  party_colors) +scale_x_continuous(breaks=c(-30, -20, -10, 0, 10, 20, 30,40), labels = c("30/n Clinton)", "20", "10", "0", "10", "20", "30", "40/n (Trump)")) + facet_wrap(~census, ncol=1, scales="free_y") +guides(color=FALSE) + labs(x="Point Margin", y= "") + theme(axis.text = element_text(size=8))
+
+```
+
+```{r}
+library(maps)
+us_states <- map_data("state")
+head(us_states)
+dim(us_states)
+```
+
+```{r}
+p60 <- ggplot(data=us_states, mapping = aes(x=long, y= lat, group= group))
+p60 + geom_polygon(fill="white", color= "black")
+```
+
+```{r}
+p61 = ggplot(data = us_states, mapping=aes(x = long, y=lat, fill= region, group = group))
+p61 + geom_polygon(color= "gray90", size = 0.1) +guides(fill= FALSE)
+```
+
+```{r}
+p62 <- ggplot(data=us_states, mapping= aes(x= long, y= lat, group= group, fill= region))
+p62 + geom_polygon(color= "gray90", size= 0.1) +guides(fill= FALSE) + coord_map(projection = "albers", lat0=39, lat1=45)
+```
 
 
 #Real Data Analysis
